@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IMF Data Dashboard — AFD/EU FLEGT VPA Guyana</title>
+</head>
+<body>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #f6f2e9;
+    --surface: #ffffff;
+    --surface-2: #efe9da;
+    --ink: #202b22;
+    --ink-muted: #5c6b5e;
+    --ink-faint: #8a9089;
+    --border: #ddd3bc;
+    --border-strong: #c9bd9f;
+    --brand: #1f4a38;
+    --brand-ink: #f4f1e6;
+    --accent: #b5563a;
+    --accent-soft: #f0dcd3;
+    --status-good: #0c8f0c;
+    --status-warning-ink: #8a5c00;
+    --status-warning-bg: #fdecc4;
+    --status-serious-ink: #a4431f;
+    --status-serious-bg: #fbe0d3;
+    --status-na-ink: #6b6455;
+    --status-na-bg: #eae4d4;
+    --pending-ink: #55606b;
+    --pending-bg: #e4e8ea;
+    --shadow: 0 1px 2px rgba(32,43,34,0.06), 0 6px 20px -8px rgba(32,43,34,0.18);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12170f;
+      --surface: #1a2118;
+      --surface-2: #212a1d;
+      --ink: #ece7d8;
+      --ink-muted: #a9b0a2;
+      --ink-faint: #79806f;
+      --border: #333d2d;
+      --border-strong: #445039;
+      --brand: #6fbe97;
+      --brand-ink: #0e1a13;
+      --accent: #e08f6c;
+      --accent-soft: #3a2620;
+      --status-good: #3ecb3e;
+      --status-warning-ink: #ffd873;
+      --status-warning-bg: #453815;
+      --status-serious-ink: #ffab84;
+      --status-serious-bg: #4a2c1e;
+      --status-na-ink: #c9c2ac;
+      --status-na-bg: #322d21;
+      --pending-ink: #b7c0c7;
+      --pending-bg: #232b2f;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -8px rgba(0,0,0,0.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12170f;
+    --surface: #1a2118;
+    --surface-2: #212a1d;
+    --ink: #ece7d8;
+    --ink-muted: #a9b0a2;
+    --ink-faint: #79806f;
+    --border: #333d2d;
+    --border-strong: #445039;
+    --brand: #6fbe97;
+    --brand-ink: #0e1a13;
+    --accent: #e08f6c;
+    --accent-soft: #3a2620;
+    --status-good: #3ecb3e;
+    --status-warning-ink: #ffd873;
+    --status-warning-bg: #453815;
+    --status-serious-ink: #ffab84;
+    --status-serious-bg: #4a2c1e;
+    --status-na-ink: #c9c2ac;
+    --status-na-bg: #322d21;
+    --pending-ink: #b7c0c7;
+    --pending-bg: #232b2f;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -8px rgba(0,0,0,0.5);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 40px 28px 80px; }
+
+  code, .mono, .num { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+  /* ---------- Header ---------- */
+  header.top { display: flex; flex-wrap: wrap; gap: 24px; justify-content: space-between; align-items: flex-end; margin-bottom: 34px; border-bottom: 1px solid var(--border); padding-bottom: 28px; }
+  .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brand); font-weight: 600; margin: 0 0 10px; }
+  h1 { font-family: 'Fraunces', serif; font-optical-sizing: auto; font-weight: 600; font-size: clamp(28px, 4vw, 40px); line-height: 1.08; margin: 0 0 8px; text-wrap: balance; color: var(--ink); }
+  .lede { color: var(--ink-muted); max-width: 62ch; margin: 0; font-size: 15.5px; }
+  .top-meta { text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: var(--ink-faint); white-space: nowrap; }
+  .top-meta strong { display: block; color: var(--ink-muted); font-weight: 600; }
+
+  /* ---------- KPI strip ---------- */
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 36px; }
+  .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+  .kpi::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--brand); }
+  .kpi .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-muted); font-weight: 600; margin-bottom: 8px; }
+  .kpi .value { font-size: 25px; font-weight: 600; color: var(--ink); line-height: 1.15; }
+  .kpi .unit { font-size: 13px; color: var(--ink-faint); font-weight: 500; margin-left: 2px;}
+  .kpi .sub { font-size: 12.5px; color: var(--ink-faint); margin-top: 6px; }
+  .kpi .tag { display: inline-block; margin-top: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; background: var(--surface-2); color: var(--ink-faint); border: 1px solid var(--border); }
+
+  /* ---------- Section shell ---------- */
+  section.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 26px 26px 22px; margin-bottom: 24px; box-shadow: var(--shadow); }
+  .panel h2 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 21px; margin: 0 0 4px; color: var(--ink); }
+  .panel .panel-sub { color: var(--ink-muted); font-size: 13.5px; margin: 0 0 20px; max-width: 72ch; }
+
+  /* ---------- Two column layout ---------- */
+  .grid-2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 880px) { .grid-2 { grid-template-columns: 1fr; } .kpi-row { grid-template-columns: repeat(2,1fr); } }
+
+  /* ---------- Stacked bar chart ---------- */
+  .chart-area { overflow-x: auto; }
+  .bar-row { display: grid; grid-template-columns: 230px 1fr; gap: 14px; align-items: center; margin-bottom: 14px; }
+  .bar-row .rowlabel { font-size: 13px; color: var(--ink); font-weight: 500; }
+  .bar-track { position: relative; height: 26px; background: var(--surface-2); border-radius: 5px; overflow: hidden; display: flex; }
+  .seg { height: 100%; position: relative; cursor: default; transition: filter 0.15s ease; }
+  .seg:hover { filter: brightness(0.92); }
+  .seg + .seg { margin-left: 2px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 18px; font-size: 12.5px; color: var(--ink-muted); }
+  .legend .item { display: flex; align-items: center; gap: 7px; }
+  .legend .swatch { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+  .tooltip { position: fixed; pointer-events: none; background: var(--ink); color: var(--bg); font-size: 12px; padding: 6px 9px; border-radius: 6px; opacity: 0; transform: translateY(4px); transition: opacity 0.1s ease; z-index: 50; max-width: 240px; }
+  .tooltip.show { opacity: 1; }
+
+  /* ---------- Progress panel ---------- */
+  .progress-shell { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+  .progress-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+  .progress-head .n { font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 600; }
+  .progress-track { height: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--pending-ink); opacity: 0.35; width: 0%; }
+  .progress-foot { margin-top: 10px; font-size: 12.5px; color: var(--ink-muted); }
+
+  /* ---------- Filters ---------- */
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; align-items: center; }
+  .chip { border: 1px solid var(--border-strong); background: var(--surface); color: var(--ink-muted); font-size: 12.5px; font-weight: 500; padding: 6px 13px; border-radius: 999px; cursor: pointer; font-family: inherit; transition: all 0.12s ease; }
+  .chip:hover { border-color: var(--brand); color: var(--brand); }
+  .chip.active { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+  .search { margin-left: auto; position: relative; }
+  .search input { font-family: inherit; font-size: 13px; padding: 7px 12px 7px 30px; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--ink); width: 220px; }
+  .search input:focus { outline: 2px solid var(--brand); outline-offset: 1px; }
+  .search svg { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); opacity: 0.5; }
+
+  /* ---------- Indicator groups ---------- */
+  .area-group { margin-bottom: 6px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .area-head { width: 100%; text-align: left; background: var(--surface-2); border: none; padding: 13px 16px; font-family: 'Fraunces', serif; font-weight: 600; font-size: 15.5px; color: var(--ink); cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .area-head:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
+  .area-head .count { font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 500; color: var(--ink-muted); }
+  .area-head .chev { transition: transform 0.15s ease; color: var(--ink-muted); flex-shrink: 0; }
+  .area-group.open .chev { transform: rotate(90deg); }
+  .area-body { display: none; padding: 4px 16px 14px; }
+  .area-group.open .area-body { display: block; }
+  .subarea-label { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-faint); font-weight: 600; margin: 16px 0 8px; }
+  .subarea-label:first-child { margin-top: 12px; }
+
+  .ind-row { display: grid; grid-template-columns: 78px 1fr auto; gap: 14px; padding: 10px 8px; border-radius: 8px; align-items: start; }
+  .ind-row:hover { background: var(--surface-2); }
+  .ind-code { font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 600; color: var(--brand); padding-top: 2px; }
+  .ind-desc { font-size: 13.5px; color: var(--ink); font-weight: 500; margin: 0 0 4px; }
+  .ind-value { font-size: 12.8px; color: var(--ink-muted); margin: 0; }
+  .pill-col { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+  .pill { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.03em; text-transform: uppercase; padding: 3px 8px; border-radius: 5px; white-space: nowrap; font-weight: 600; }
+  .pill.good { color: var(--status-good); background: color-mix(in srgb, var(--status-good) 14%, transparent); }
+  .pill.warning { color: var(--status-warning-ink); background: var(--status-warning-bg); }
+  .pill.serious { color: var(--status-serious-ink); background: var(--status-serious-bg); }
+  .pill.na { color: var(--status-na-ink); background: var(--status-na-bg); }
+  .pill.pending { color: var(--pending-ink); background: var(--pending-bg); }
+
+  .no-results { padding: 30px 10px; text-align: center; color: var(--ink-faint); font-size: 13.5px; }
+
+  footer { margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--border); color: var(--ink-faint); font-size: 12.5px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; }
+  footer a { color: var(--brand); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <p class="eyebrow">AFD &middot; EU FLEGT VPA Programme &middot; Guyana</p>
+      <h1>IMF Data Dashboard</h1>
+      <p class="lede">Impact Monitoring Framework for the Guyana VPA &mdash; 49 indicators across four impact areas. Preview built on the 2018 TERO baseline; the 2025 collection tracker is wired to fill in live as the team logs sources in the Data Entry workbook.</p>
+    </div>
+    <div class="top-meta">
+      <strong>Preview generated</strong>
+      25 October 2026
+      <div style="margin-top:6px;">Source: TERO baseline study, rev. March 2026</div>
+    </div>
+  </header>
+
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <section class="panel">
+    <div class="grid-2">
+      <div>
+        <h2>2018 baseline data availability</h2>
+        <p class="panel-sub">How well each impact area was already covered by secondary sources at the 2018 baseline &mdash; the starting point the 2025 round is built on top of.</p>
+        <div class="chart-area">
+          <div id="chart"></div>
+          <div class="legend" id="legend"></div>
+        </div>
+      </div>
+      <div>
+        <h2>2025 collection progress</h2>
+        <p class="panel-sub">Live once the team starts logging rows in the workbook&rsquo;s Data Entry Log &mdash; each entry moves its indicator out of &ldquo;not started&rdquo; here.</p>
+        <div class="progress-shell">
+          <div class="progress-head">
+            <span class="num n" id="progressN">0 / 49</span>
+            <span class="pill pending" id="progressBadge">Not started</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+          <div class="progress-foot">Phase 1 kicked off 17 Aug 2026. Once entries appear in the Excel log (or its Google Sheet twin), this dashboard&rsquo;s data source swaps from the static baseline snapshot to a live connection &mdash; e.g. Looker Studio reading the same sheet.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Indicator explorer</h2>
+    <p class="panel-sub">All 49 indicators with their documented 2018 baseline finding. Grouped by impact area &mdash; expand a section, filter by data-readiness, or search.</p>
+
+    <div class="filters" id="filters">
+      <button class="chip active" data-filter="all">All indicators</button>
+      <button class="chip" data-filter="Multiple secondary sources (triangulation possible)">Multiple sources</button>
+      <button class="chip" data-filter="One secondary source identified">One source</button>
+      <button class="chip" data-filter="No direct secondary source - needs estimation/primary">No direct source</button>
+      <button class="chip" data-filter="Not assessed at baseline">Basis data</button>
+      <button class="chip" data-filter="2025:Secondary data found">2025 data collected</button>
+      <div class="search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchBox" placeholder="Search code or keyword&hellip;" aria-label="Search indicators">
+      </div>
+    </div>
+
+    <div id="groups"></div>
+    <div class="no-results" id="noResults" style="display:none;">No indicators match this filter.</div>
+  </section>
+
+  <footer>
+    <span>Data model shared with <code>2025 IMF Data Entry and Storage.xlsx</code> &middot; PC Consultants, AFD/EU FLEGT VPA Guyana</span>
+    <span>Baseline findings condensed from the TERO 2018 baseline study (reviewed March 2026)</span>
+  </footer>
+
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script id="indicator-data" type="application/json">
+[{"code": "0.1", "desc": "Map of forest concessions allocation of Guyana.", "area": "Basis Data", "subarea": "Basis Data", "avail": "Not assessed at baseline", "baseline_value": "GFC 2018 allocation map (GFC/GL&SC/NRMP) used mainly to identify unallocated lands; not a precise count of active concessions - shows spatial mosaic of Amerindian lands, concessions and State Forest Permissions."}, {"code": "0.2", "desc": "Number and areas of large concessions, Small Concessions, Community Forestry Associations, Private Lands, State Land in conversion and Amerindian villages.", "area": "Basis Data", "subarea": "Basis Data", "avail": "Not assessed at baseline", "baseline_value": "637 concessions nationally covering 14,028,357 ha (FRMD 2018): 21 Large Concessions (3,103,379 ha), 486 Small Concessions/CFMAs (1,974,630 ha), 15 Reserves (809,316 ha), 115 Amerindian villages (8,141,032 ha). Under review: Annex 5 gives 3,391,588 ha for Amerindian villages (8,141,032 ha is listed there as Unallocated State Forest), which would also change the total; to confirm with Iris."}, {"code": "0.3", "desc": "Number of sawmills, lumber yards, processing companies and import-export companies.", "area": "Basis Data", "subarea": "Basis Data", "avail": "Not assessed at baseline", "baseline_value": "Tracked via annual GFC processing/trade licenses in 3 categories (processing & domestic sales, import-export, other/firewood-charcoal); licenses rose sharply in 2014-15 (China market entry, Caribbean reconstruction demand) then grew steadily - no official count of downstream actors (furniture makers etc.) outside GFC licensing."}, {"code": "0.4", "desc": "Total number of forest workers (employees of FSOs and self-employed FSOs, formal and informal).", "area": "Basis Data", "subarea": "Basis Data", "avail": "Not assessed at baseline", "baseline_value": "19,640 workers formally declared via FSIR in 2018 (11,075 production/ISIC02, 8,565 processing/ISIC16); applying ~60% informality rate gives an estimated total workforce of 49,099 (~17.5% of Guyana's total employment)."}, {"code": "0.5", "desc": "Number of annual FSO’s inspections (Overall total and disaggregated per forest stations).", "area": "Basis Data", "subarea": "Basis Data", "avail": "Not assessed at baseline", "baseline_value": "No quantitative national data available (GFC/MoL records not accessible). Qualitatively, most FSOs reported monthly GFC inspections (near-daily for large concessions); no FSO reported a Ministry of Labour OSH visit before 2018."}, {"code": "1.1.1", "desc": "Number and % of inspected FSOs about OSH practices compliance", "area": "Impact Area 1: Human development and livelihoods", "subarea": "1.1 Occupational safety and health", "avail": "One secondary source identified", "baseline_value": "No quantitative data (no access to GFC/MoL inspection records). Qualitatively, only ~18% of interviewed FSOs reported OSH-specific inspections, mainly at sawmills/large concessions; no OSH fines or infractions reported."}, {"code": "1.1.2", "desc": "Number and % of FSOs complying with public health minimum standards", "area": "Impact Area 1: Human development and livelihoods", "subarea": "1.1 Occupational safety and health", "avail": "One secondary source identified", "baseline_value": "Large FSOs partially comply with public health minimum standards; Medium FSOs partially comply; Small FSOs and Amerindian operators face structural barriers to compliance."}, {"code": "1.1.3", "desc": "Number and % of trained workers on OSH practices", "area": "Impact Area 1: Human development and livelihoods", "subarea": "1.1 Occupational safety and health", "avail": "One secondary source identified", "baseline_value": "70% of interviewed FSOs reported having received OSH training, with an average of 17% of staff trained (GFC annual report, FTCI interviews)."}, {"code": "1.1.4", "desc": "Number and rate of occupational accident and injuries in the forest sector", "area": "Impact Area 1: Human development and livelihoods", "subarea": "1.1 Occupational safety and health", "avail": "No direct secondary source - needs estimation/primary", "baseline_value": "More than half of interviewed FSOs (59%) reported OSH incidents/accidents; a quarter faced major accidents (all Amerindian or Small FSOs); average of 1.4 accidents/year reported to Ministry of Labour 2014-2018."}, {"code": "1.2.1", "desc": "Volume of forest products in custody", "area": "Impact Area 1: Human development and livelihoods", "subarea": "1.2 FSO's administrative capacities", "avail": "One secondary source identified", "baseline_value": "No quantitative national data on volume of forest products in custody. Custody is a common GFC enforcement practice, particularly affecting small FSOs and Amerindian operators (11 of 13 FSOs reporting infractions had product placed in custody, typically for 7-9 days)."}, {"code": "1.2.2", "desc": "Number and % of trained workers about record keeping", "area": "Impact Area 1: Human development and livelihoods", "subarea": "1.2 FSO's administrative capacities", "avail": "One secondary source identified", "baseline_value": "More than half of interviewed FSOs received record-keeping training before 2018; national training coverage peaked at just over 1% of the total workforce in 2017 (GFC annual report)."}, {"code": "1.2.3", "desc": "Number and % of FSOs meeting administrative obligations", "area": "Impact Area 1: Human development and livelihoods", "subarea": "1.2 FSO's administrative capacities", "avail": "One secondary source identified", "baseline_value": "An estimated 50-65% of FSOs were compliant with administrative obligations in 2018; over 500 late-permit-submission cases reported - the most common infraction in IFM reports 2015-2018."}, {"code": "1.3.1", "desc": "Number and % of formal jobs", "area": "Impact Area 1: Human development and livelihoods", "subarea": "1.3 Formal jobs generation and workers livelihoods", "avail": "No direct secondary source - needs estimation/primary", "baseline_value": "Production: 35% formal jobs (50% of women, 33% of men). Transformation: 50% formal jobs (60% of women, 46% of men). General: ~40% formal / 60% informal (Bureau of Statistics LFS 2018, ILOSTAT, FSIR)."}, {"code": "1.3.2", "desc": "Number and % of FSOs contributing to the P.A.Y.E. and NIS.", "area": "Impact Area 1: Human development and livelihoods", "subarea": "1.3 Formal jobs generation and workers livelihoods", "avail": "No direct secondary source - needs estimation/primary", "baseline_value": "No quantitative secondary data available; formal compliance with P.A.Y.E./NIS is limited, particularly among small-scale, remote, and Indigenous operators."}, {"code": "1.3.3", "desc": "Number and % of permanent positions", "area": "Impact Area 1: Human development and livelihoods", "subarea": "1.3 Formal jobs generation and workers livelihoods", "avail": "No direct secondary source - needs estimation/primary", "baseline_value": "76% of forest sector employees hold permanent jobs per ILOSTAT (84% of women, 75% of men); FSO field interviews estimate ~53% permanent (74% excluding the Amerindian exception), 47% seasonal."}, {"code": "1.3.4", "desc": "Number and % of forest workers relying on forest activities for their livelihoods", "area": "Impact Area 1: Human development and livelihoods", "subarea": "1.3 Formal jobs generation and workers livelihoods", "avail": "No direct secondary source - needs estimation/primary", "baseline_value": "No quantitative national data. Large FSO workers mainly rely on forestry for livelihoods; Amerindian operators' main livelihood is logging when engaged; Small FSOs/brokers rely on forestry only partially or seasonally."}, {"code": "1.3.5", "desc": "Income level of forestry workers", "area": "Impact Area 1: Human development and livelihoods", "subarea": "1.3 Formal jobs generation and workers livelihoods", "avail": "No direct secondary source - needs estimation/primary", "baseline_value": "Average monthly income (FSO/FMD interviews, 2018): Large FSOs 96,667 GYD; Medium FSOs 128,000 GYD; Small FSOs 142,000 GYD; Amerindian operators 120,833 GYD."}, {"code": "2.1.1", "desc": "Description of information sharing activities and processes implemented and compliance with VPA – Annex IX", "area": "Impact Area 2: Transparency, governance and rule of law", "subarea": "2.1 Transparency", "avail": "One secondary source identified", "baseline_value": "25 stakeholder awareness/capacity-building sessions across 10 regions over 7 years; 1 factsheet and 1 explanatory video produced. Compliance with VPA Annex IX public-access requirements: 45% complete, 32% partial, 23% non-compliant."}, {"code": "2.1.2", "desc": "Number and % of Forest stakeholders effectively accessing the information disclosed", "area": "Impact Area 2: Transparency, governance and rule of law", "subarea": "2.1 Transparency", "avail": "No direct secondary source - needs estimation/primary", "baseline_value": "122 FSOs and 15 other VPA stakeholders reported as informed; effectiveness high for direct workshop attendees, low/uncertain for indirect (second-degree) stakeholders."}, {"code": "2.2.1", "desc": "Description of implemented stakeholders’ engagement processes", "area": "Impact Area 2: Transparency, governance and rule of law", "subarea": "2.2 Meaningful stakeholders' engagement", "avail": "One secondary source identified", "baseline_value": "69 stakeholder-engagement workshops held over 8 years (2010-2018); every region of Guyana visited at least once."}, {"code": "2.2.2", "desc": "Number of participants and represented entities to engagement processes", "area": "Impact Area 2: Transparency, governance and rule of law", "subarea": "2.2 Meaningful stakeholders' engagement", "avail": "One secondary source identified", "baseline_value": "2,103 total participants across workshops over 8 years (771 women); 211 entities represented, including 82 Amerindian organizations (39%)."}, {"code": "2.2.3", "desc": "Level of VPA stakeholders’ satisfaction with the engagement processes", "area": "Impact Area 2: Transparency, governance and rule of law", "subarea": "2.2 Meaningful stakeholders' engagement", "avail": "No direct secondary source - needs estimation/primary", "baseline_value": "Satisfaction with engagement processes: Public institutions (national/international) high; Private sector high-medium (uneven by FSO size); Amerindian communities medium-low."}, {"code": "2.3.1", "desc": "Methods implemented to listen and respond to complaints linked to the VPA implementation", "area": "Impact Area 2: Transparency, governance and rule of law", "subarea": "2.3 Grievance and conflict resolution mechanisms", "avail": "Multiple secondary sources (triangulation possible)", "baseline_value": "Two grievance-mechanism types operating pre-2018: local community mechanisms (Amerindian Village/Community Councils) and sector-specific mechanisms (GLSC, GGMC, GFC); no dedicated VPA complaint mechanism yet operational."}, {"code": "2.3.2", "desc": "Number of formally registered grievances linked to the VPA implementation", "area": "Impact Area 2: Transparency, governance and rule of law", "subarea": "2.3 Grievance and conflict resolution mechanisms", "avail": "One secondary source identified", "baseline_value": "No quantitative data available on number of formally registered grievances. Main topics: land use/titling conflicts, labour/NIS/GRA compliance, infrastructure, environmental concerns, boundary disputes."}, {"code": "2.3.3", "desc": "% of resolved grievances linked to the VPA implementation", "area": "Impact Area 2: Transparency, governance and rule of law", "subarea": "2.3 Grievance and conflict resolution mechanisms", "avail": "One secondary source identified", "baseline_value": "No % figure available; minor grievances were generally resolved by GFC while major grievances (environmental damage, infrastructure) typically were not."}, {"code": "2.3.4", "desc": "Average resolution timeline (in number of days) of grievances and disputes treated through the VPA complaint mechanism", "area": "Impact Area 2: Transparency, governance and rule of law", "subarea": "2.3 Grievance and conflict resolution mechanisms", "avail": "One secondary source identified", "baseline_value": "No quantitative data; resolution timelines ranged from a few days for minor issues to several years for major/unresolved issues."}, {"code": "2.4.1", "desc": "Number and % of compliant FSOs with legality definition principles and criterions", "area": "Impact Area 2: Transparency, governance and rule of law", "subarea": "2.4 Rule of law", "avail": "One secondary source identified", "baseline_value": "Approx. 25% of FSOs were fully compliant with legality definition principles before 2018; Large FSOs generally compliant, Medium FSOs high incompliance, Small FSOs frequently incompliant."}, {"code": "2.4.2", "desc": "Number and % of inspected FSOs about legality definition principles and criterions", "area": "Impact Area 2: Transparency, governance and rule of law", "subarea": "2.4 Rule of law", "avail": "One secondary source identified", "baseline_value": "100% of interviewed FSOs inspected on forest management, environmental aspects, and OSH (sawmills only); no reported inspections on land tenure/use rights, labour/fiscal obligations, or OSH at concessions."}, {"code": "2.4.3", "desc": "Number and % of trained FSOs about legality definition", "area": "Impact Area 2: Transparency, governance and rule of law", "subarea": "2.4 Rule of law", "avail": "One secondary source identified", "baseline_value": "FSOs/entities trained on legality definition: 82 Amerindian villages, 26 Small concessions, 7 processing/sale operators, 3 Large concessions, 3 exporters/importers, 1 mining-permit holder."}, {"code": "3.1.1", "desc": "Volume of seized and forfeited timber and forest products", "area": "Impact Area 3: Sustainable management and protection of forest and ecosystems", "subarea": "3.1 Sustainable management of forests", "avail": "Multiple secondary sources (triangulation possible)", "baseline_value": "No quantitative information available on volume of seized/forfeited timber (no data shared with the consulting team)."}, {"code": "3.1.2", "desc": "Number and % of FSOs with reported breaches related to sustainable management of forest", "area": "Impact Area 3: Sustainable management and protection of forest and ecosystems", "subarea": "3.1 Sustainable management of forests", "avail": "One secondary source identified", "baseline_value": "Approx. 6-10% of FSOs breached sustainable forest management requirements pre-2018 (AAC exceedance, boundary violations, improper harvesting), with Small Concessions showing the highest non-compliance rates."}, {"code": "3.1.3", "desc": "Volume of annual production from logging activities compared to annual total allowable cut volume", "area": "Impact Area 3: Sustainable management and protection of forest and ecosystems", "subarea": "3.1 Sustainable management of forests", "avail": "Multiple secondary sources (triangulation possible)", "baseline_value": "National log production in 2018: 293,084 m3. Total allowable cut (Large Concessions only): 1,777,103 m3. Overharvesting: 6.4% of small concessions; CFMAs accounted for ~89% of total overharvested volume."}, {"code": "3.1.4", "desc": "Area and % of conservation areas of Large Concessions remaining intact", "area": "Impact Area 3: Sustainable management and protection of forest and ecosystems", "subarea": "3.1 Sustainable management of forests", "avail": "Multiple secondary sources (triangulation possible)", "baseline_value": "292,578 ha of conservation areas at national level (9.6% of total area under large concessions and Iwokrama); no data confirming whether these areas remained intact."}, {"code": "3.2.1", "desc": "Deforestation area caused by Forestry Infrastructure construction", "area": "Impact Area 3: Sustainable management and protection of forest and ecosystems", "subarea": "3.2 Forest cover changes and GHG emissions", "avail": "Multiple secondary sources (triangulation possible)", "baseline_value": "356 ha of deforestation caused by forestry infrastructure construction in 2018 (down from 609 ha/10yr in the 1990s, representing 28.6% of total deforestation then vs. 2-4% by 2018) (MRVS reports)."}, {"code": "3.2.2", "desc": "Carbon emissions due to forest degradation and deforestation driven by forestry activities", "area": "Impact Area 3: Sustainable management and protection of forest and ecosystems", "subarea": "3.2 Forest cover changes and GHG emissions", "avail": "Multiple secondary sources (triangulation possible)", "baseline_value": "2018 CO2 emissions from forestry-driven degradation/deforestation: Forestry infrastructure 371,931 t CO2; Timber harvesting 1,830,856 t CO2; Illegal logging 10,682 t CO2 (MRVS reports)."}, {"code": "3.3.1", "desc": "Number and types of alerts and complaints about pollution on land, water, noise, and air originated by FSOs", "area": "Impact Area 3: Sustainable management and protection of forest and ecosystems", "subarea": "3.3 Environment, biodiversity and ecosystems", "avail": "Multiple secondary sources (triangulation possible)", "baseline_value": "2 formal environmental complaints registered at the EPA in 2018, mainly sawmill/lumberyard-related noise, vibration and dust; 18% of 17 FSOs interviewed reported receiving at least one environmental complaint historically."}, {"code": "4.1.1", "desc": "Total and average amount of capital investment by FSOs", "area": "Impact Area 4: International cooperation, trade, and investment", "subarea": "4.1 FSOs economic development", "avail": "Multiple secondary sources (triangulation possible)", "baseline_value": "2018 Bank of Guyana annual loans: Agriculture-forestry 477 GYD million; Manufacturing (timber & sawmilling) 1,662.7 GYD million."}, {"code": "4.1.2", "desc": "Number of FSOs accessing financial services", "area": "Impact Area 4: International cooperation, trade, and investment", "subarea": "4.1 FSOs economic development", "avail": "Multiple secondary sources (triangulation possible)", "baseline_value": "No quantified figure. Large FSOs largely self-financed or foreign-funded; Medium FSOs use a mix of government grants and private banking; Small FSOs and Amerindian operators remain largely excluded from formal financial services."}, {"code": "4.1.3", "desc": "Volume of traded forest products with a focus on traded timber species distribution and value-added forest products", "area": "Impact Area 4: International cooperation, trade, and investment", "subarea": "4.1 FSOs economic development", "avail": "Multiple secondary sources (triangulation possible)", "baseline_value": "2018: Timber products production 400,220 m3; Timber products exports 116,434 m3; other value-added products traded 28,249 pieces (GFC FSIR, allocation map)."}, {"code": "4.1.4", "desc": "Value of FSOs labor productivity", "area": "Impact Area 4: International cooperation, trade, and investment", "subarea": "4.1 FSOs economic development", "avail": "Multiple secondary sources (triangulation possible)", "baseline_value": "2018 labour productivity (GVA/employee): Log segment 932,332 GYD; Sawmilling segment 1,242,104 GYD (GFC FSIR)."}, {"code": "4.1.5", "desc": "Number and % of FSOs going inactive", "area": "Impact Area 4: International cooperation, trade, and investment", "subarea": "4.1 FSOs economic development", "avail": "No direct secondary source - needs estimation/primary", "baseline_value": "No single national % figure; 2018 saw declines in active licenses concentrated in Berbice, Demerara and Northwest, mainly affecting small concessions and processing actors (GFC FSIR, allocation map)."}, {"code": "4.2.1", "desc": "Number and origins of applications to access concessions in Guyana", "area": "Impact Area 4: International cooperation, trade, and investment", "subarea": "4.2 Forest sector attractivity", "avail": "Multiple secondary sources (triangulation possible)", "baseline_value": "82% of large timber concessions were foreign-controlled as of 2016 (mainly China, Malaysia, India) - the baseline itself has no direct data on concession-application volumes/origins."}, {"code": "4.2.2", "desc": "Volume and list of foreign investments in Guyanese forestry sector", "area": "Impact Area 4: International cooperation, trade, and investment", "subarea": "4.2 Forest sector attractivity", "avail": "Multiple secondary sources (triangulation possible)", "baseline_value": "Notable foreign-held concessions: BaiShanLin (615,000 ha), Vaitarna Holdings (737,852 ha), Barama Company Limited (1.6M ha); foreign investment typically funded directly by parent headquarters rather than local loans."}, {"code": "4.2.3", "desc": "Volume and total value of exported wood and articles of wood, compliant with international phytosanitary standards", "area": "Impact Area 4: International cooperation, trade, and investment", "subarea": "4.2 Forest sector attractivity", "avail": "Multiple secondary sources (triangulation possible)", "baseline_value": "2018 exports (ITTO): Logs 148,000 m3 / US$39.2M / US$265.04 per m3; Sawnwood 21,000 m3 / US$21M / US$970.79 per m3; Venwood 0.006 m3 / US$12,000 / US$1,679.49 per m3; Plywood 3,000 m3 / US$3,000 / US$10 per m3."}, {"code": "4.2.4", "desc": "Forest sector GDP and description of its drivers", "area": "Impact Area 4: International cooperation, trade, and investment", "subarea": "4.2 Forest sector attractivity", "avail": "Multiple secondary sources (triangulation possible)", "baseline_value": "2018 Forestry GDP: 18,734 GYD million (0.48% of GDP); Other Manufacturing GDP: 51,138 GYD million (1.3% of GDP) (Bureau of Statistics) - forestry's GDP share fell below 2% from 2016 onward."}, {"code": "4.3.1", "desc": "Public revenues generated by the forest sector", "area": "Impact Area 4: International cooperation, trade, and investment", "subarea": "4.3 Public institutions performance", "avail": "One secondary source identified", "baseline_value": "Total 2018 public revenue from the forest sector: 1,390,508,759 GYD (~5.74M EUR) - GFC 1,131,477,841 GYD (81%), GRA 249,852,332 GYD (18%), EPA 9,178,586 GYD (<1%) (GEITI 2021 report)."}, {"code": "4.3.2", "desc": "Public investment in forest sector and in GTLAS agencies", "area": "Impact Area 4: International cooperation, trade, and investment", "subarea": "4.3 Public institutions performance", "avail": "One secondary source identified", "baseline_value": "2018 public investment in the forest sector: 249,100,000 GYD (Ministry of Finance Annual Budget Estimate); no specific breakout available for GTLAS agencies."}, {"code": "4.3.4", "desc": "Number of days to obtain authorizations and licensing from relevant public entities (GFC and EPA)", "area": "Impact Area 4: International cooperation, trade, and investment", "subarea": "4.3 Public institutions performance", "avail": "No direct secondary source - needs estimation/primary", "baseline_value": "Average processing time to obtain authorizations/licensing in 2018: GFC 31.5 days; EPA 83 days (FSO interviews)."}, {"code": "4.4.1", "desc": "Description of how the VPA creates a pathway for accessing new markets and new international collaboration agreements", "area": "Impact Area 4: International cooperation, trade, and investment", "subarea": "4.4 Collaboration with international institutions", "avail": "Multiple secondary sources (triangulation possible)", "baseline_value": "The VPA process (pre-2018 groundwork) let Guyana: strengthen bilateral EU engagement, align with global timber trade/certification initiatives (ITTO, FSC discussions), engage international development partners (World Bank FCPF, UN-REDD), and address market perception/advocacy (e.g. greenheart's exclusion from UK procurement)."}]
+</script>
+
+<script>
+(function () {
+  const DATA = JSON.parse(document.getElementById('indicator-data').textContent);
+
+  // 2025 collection status per indicator, from the Gap Summary Dashboard's "Per-Indicator Detail" table
+  const STATUS_2025 = {"0.1":"Secondary data found","0.2":"Secondary data found","0.3":"Secondary data found","0.4":"Not started","0.5":"Not started","1.1.1":"Not started","1.1.2":"Not started","1.1.3":"Secondary data found","1.1.4":"Not started","1.2.1":"Not started","1.2.2":"Not started","1.2.3":"Not started","1.3.1":"Not started","1.3.2":"Not started","1.3.3":"Not started","1.3.4":"Not started","1.3.5":"Not started","2.1.1":"Not started","2.1.2":"Not started","2.2.1":"Not started","2.2.2":"Not started","2.2.3":"Not started","2.3.1":"Not started","2.3.2":"Not started","2.3.3":"Not started","2.3.4":"Not started","2.4.1":"Not started","2.4.2":"Not started","2.4.3":"Not started","3.1.1":"Not started","3.1.2":"Not started","3.1.3":"Secondary data found","3.1.4":"Not started","3.2.1":"Secondary data found","3.2.2":"Secondary data found","3.3.1":"Not started","4.1.1":"Not started","4.1.2":"Not started","4.1.3":"Not started","4.1.4":"Not started","4.1.5":"Not started","4.2.1":"Not started","4.2.2":"Not started","4.2.3":"Secondary data found","4.2.4":"Secondary data found","4.3.1":"Not started","4.3.2":"Not started","4.3.4":"Not started","4.4.1":"Not started"};
+  const STATUS_2025_META = {
+    "Not started": { pill: "pending", label: "2025: not started" },
+    "Secondary data found": { pill: "good", label: "2025: secondary data found" }
+  };
+
+  const STATUS_META = {
+    "Multiple secondary sources (triangulation possible)": { short: "Multiple sources", pill: "good", color: "var(--status-good)" },
+    "One secondary source identified": { short: "One source", pill: "warning", color: "#e0a800" },
+    "No direct secondary source - needs estimation/primary": { short: "No direct source", pill: "serious", color: "#e0704a" },
+    "Not assessed at baseline": { short: "Basis data (n/a)", pill: "na", color: "#9b9481" }
+  };
+  const AREA_ORDER = [...new Set(DATA.map(d => d.area))];
+
+  // ---------- KPI strip (hand-picked headline basis-data figures) ----------
+  const kpis = [
+    { label: "Forest sector workforce (2018 est.)", value: "49,099", unit: "workers", sub: "19,640 formally declared via FSIR + 60% informality adjustment" },
+    { label: "Active concessions (2018)", value: "637", unit: "sites", sub: "14,028,357 ha total — 21 large, 486 small/CFMA, 115 Amerindian villages" },
+    { label: "Forest sector GDP (2018)", value: "18,734", unit: "M GYD", sub: "0.48% of national GDP — down from >2% before 2016" },
+    { label: "Public revenue from forestry (2018)", value: "1.39B", unit: "GYD", sub: "≈ €5.74M — 81% via GFC, 18% GRA, <1% EPA" }
+  ];
+  document.getElementById('kpiRow').innerHTML = kpis.map(k => `
+    <div class="kpi">
+      <div class="label">${k.label}</div>
+      <div class="value num">${k.value}<span class="unit">${k.unit}</span></div>
+      <div class="sub">${k.sub}</div>
+      <div class="tag">2018 baseline</div>
+    </div>`).join('');
+
+  // ---------- Stacked bar chart: availability count by impact area ----------
+  const statuses = Object.keys(STATUS_META);
+  const counts = {};
+  AREA_ORDER.forEach(a => { counts[a] = {}; statuses.forEach(s => counts[a][s] = 0); });
+  DATA.forEach(d => { counts[d.area][d.avail]++; });
+
+  const chartEl = document.getElementById('chart');
+  const tooltip = document.getElementById('tooltip');
+
+  chartEl.innerHTML = AREA_ORDER.map(area => {
+    const total = statuses.reduce((s, k) => s + counts[area][k], 0);
+    const segs = statuses.map(s => {
+      const n = counts[area][s];
+      if (!n) return '';
+      const pct = (n / total * 100).toFixed(2);
+      const meta = STATUS_META[s];
+      return `<div class="seg" style="width:${pct}%; background:${meta.color};"
+                data-area="${area.replace(/"/g,'&quot;')}" data-status="${meta.short}" data-n="${n}"></div>`;
+    }).join('');
+    const shortArea = area.replace(/^Impact Area \d+: /, '').replace(/^Basis Data$/, 'Basis data');
+    return `<div class="bar-row">
+      <div class="rowlabel">${shortArea}</div>
+      <div class="bar-track">${segs}</div>
+    </div>`;
+  }).join('');
+
+  chartEl.querySelectorAll('.seg').forEach(seg => {
+    seg.addEventListener('mousemove', (e) => {
+      tooltip.textContent = `${seg.dataset.area.replace(/^Impact Area \d+: /,'')} — ${seg.dataset.status}: ${seg.dataset.n}`;
+      tooltip.style.left = (e.clientX + 14) + 'px';
+      tooltip.style.top = (e.clientY + 14) + 'px';
+      tooltip.classList.add('show');
+    });
+    seg.addEventListener('mouseleave', () => tooltip.classList.remove('show'));
+  });
+
+  document.getElementById('legend').innerHTML = statuses.map(s => `
+    <div class="item"><span class="swatch" style="background:${STATUS_META[s].color}"></span>${STATUS_META[s].short}</div>
+  `).join('');
+
+  // ---------- Progress panel (2025 collection: Gap Summary Dashboard, "Secondary data found" or better) ----------
+  const totalIndicators = DATA.length;
+  const collected = 9; // reflects the Data Entry Log's current state (Gap Summary Dashboard: 49 total, 40 not started -> 9 with secondary data found)
+  document.getElementById('progressN').textContent = `${collected} / ${totalIndicators}`;
+  document.getElementById('progressFill').style.width = (collected / totalIndicators * 100) + '%';
+  const progressBadge = document.getElementById('progressBadge');
+  if (collected > 0) {
+    progressBadge.textContent = 'In progress';
+    progressBadge.classList.remove('pending');
+    progressBadge.classList.add('good');
+  }
+
+  // ---------- Indicator explorer ----------
+  const groupsEl = document.getElementById('groups');
+  const noResults = document.getElementById('noResults');
+  let activeFilter = 'all';
+  let searchTerm = '';
+
+  function subareasFor(area) {
+    return [...new Set(DATA.filter(d => d.area === area).map(d => d.subarea))];
+  }
+
+  function render() {
+    let anyVisible = false;
+    const html = AREA_ORDER.map((area, idx) => {
+      const subareas = subareasFor(area);
+      const bodies = subareas.map(sub => {
+        const items = DATA.filter(d => d.area === area && d.subarea === sub && matches(d));
+        if (!items.length) return '';
+        anyVisible = true;
+        const rows = items.map(d => {
+          const meta = STATUS_META[d.avail];
+          return `<div class="ind-row">
+            <div class="ind-code">${d.code}</div>
+            <div>
+              <p class="ind-desc">${escapeHtml(d.desc)}</p>
+              <p class="ind-value"><strong>2018:</strong> ${escapeHtml(d.baseline_value || 'No documented value.')}</p>
+            </div>
+            <div class="pill-col">
+              <span class="pill ${meta.pill}">${meta.short}</span>
+              <span class="pill ${STATUS_2025_META[STATUS_2025[d.code] || 'Not started'].pill}">${STATUS_2025_META[STATUS_2025[d.code] || 'Not started'].label}</span>
+            </div>
+          </div>`;
+        }).join('');
+        const subLabel = sub === 'Basis Data' ? '' : `<div class="subarea-label">${escapeHtml(sub)}</div>`;
+        return subLabel + rows;
+      }).join('');
+
+      if (!bodies) return '';
+      const areaCount = DATA.filter(d => d.area === area && matches(d)).length;
+      const shortArea = area.replace(/^Basis Data$/, 'Basis Data (0.1–0.5)');
+      return `<div class="area-group ${idx === 0 ? 'open' : ''}" data-idx="${idx}">
+        <button class="area-head" aria-expanded="${idx === 0}">
+          <span>${escapeHtml(shortArea)}</span>
+          <span style="display:flex;align-items:center;gap:10px;">
+            <span class="count">${areaCount} indicator${areaCount === 1 ? '' : 's'}</span>
+            <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </span>
+        </button>
+        <div class="area-body">${bodies}</div>
+      </div>`;
+    }).join('');
+
+    groupsEl.innerHTML = html;
+    noResults.style.display = anyVisible ? 'none' : 'block';
+
+    groupsEl.querySelectorAll('.area-head').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const group = btn.closest('.area-group');
+        const open = group.classList.toggle('open');
+        btn.setAttribute('aria-expanded', open);
+      });
+    });
+  }
+
+  function matches(d) {
+    const passFilter = activeFilter === 'all'
+      || d.avail === activeFilter
+      || (activeFilter.startsWith('2025:') && (STATUS_2025[d.code] || 'Not started') === activeFilter.slice(5));
+    if (!passFilter) return false;
+    if (!searchTerm) return true;
+    const hay = (d.code + ' ' + d.desc + ' ' + (d.baseline_value || '')).toLowerCase();
+    return hay.includes(searchTerm);
+  }
+
+  document.querySelectorAll('#filters .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#filters .chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeFilter = chip.dataset.filter;
+      render();
+    });
+  });
+  document.getElementById('searchBox').addEventListener('input', (e) => {
+    searchTerm = e.target.value.trim().toLowerCase();
+    // auto-expand all groups while searching so matches are visible
+    if (searchTerm) {
+      render();
+      document.querySelectorAll('.area-group').forEach(g => g.classList.add('open'));
+      document.querySelectorAll('.area-head').forEach(b => b.setAttribute('aria-expanded', 'true'));
+    } else {
+      render();
+    }
+  });
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
