@@ -174,6 +174,8 @@
   .ind-code { font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 600; color: var(--brand); padding-top: 2px; }
   .ind-desc { font-size: 13.5px; color: var(--ink); font-weight: 500; margin: 0 0 4px; }
   .ind-value { font-size: 12.8px; color: var(--ink-muted); margin: 0; }
+  .ind-value + .ind-value { margin-top: 4px; }
+  .ind-value.y2025 strong { color: var(--brand); }
   .pill-col { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
   .pill { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.03em; text-transform: uppercase; padding: 3px 8px; border-radius: 5px; white-space: nowrap; font-weight: 600; }
   .pill.good { color: var(--status-good); background: color-mix(in srgb, var(--status-good) 14%, transparent); }
@@ -279,6 +281,19 @@
     "Secondary data found": { pill: "good", label: "2025: secondary data found" }
   };
 
+  // Condensed 2025 findings logged so far, from the '2025 Data Entry Log' tab (per indicator code)
+  const FINDINGS_2025 = {
+    "0.1": "GFC Forest Resources Allocation Map, latest editions 2020/2022/2025 — depicts the same five State Forest Authorization categories as the 2018 map; shows spatial distribution only, not a count of allocations.",
+    "0.2": "GFC Forest Sector Information Reports (2018–2022) and FRMD allocation summary: Large Concession SFEP fell to 1 permit / 65,845 ha by 2025 (from 4 / 1,009,687 ha in 2018); TSA 14 permits / 1,656,294 ha (2019); Iwokrama 371,681 ha (2022); Small Concession SFP+CFMA ≈531 permits / 2,198,239 ha (2019); GFC Reserves 12 / 17,925 ha (2022). Figures for Amerindian villages, private lands and state land in conversion not yet available.",
+    "0.3": "GFC licence counts (FSIR, 2018–2022): processing/domestic-sales licences fell from 711 to 645; import-export from 103 to 77; firewood/charcoal from 63 to 56. No updates published yet for 2023–2025.",
+    "1.1.3": "FTCI: 147 people trained in OSH at Iwokrama, 2019–2025 (25 in 2019, 39 in 2021, 33 in 2022, 28 in 2024, 22 in 2025). Total workforce per year isn't available, so a trained-% can't be derived yet.",
+    "3.1.3": "GFC FSIR total production volume: 400,225 m³ (2018) → 364,798 (2019) → 345,120 (2020) → 363,855 (2021) → 433,731 m³ (2022). FSIRs for 2023–2025 not yet published; total allowable cut wasn't reported, so compliance vs. the cut can't be confirmed.",
+    "3.2.1": "GFC MRVS reports: deforestation from forestry-infrastructure construction fell from 356 ha (2018) to 226 (2019), 195 (2020), 228 (2021), 156 ha (2022). MRVS reports for 2023–2025 not yet published.",
+    "3.2.2": "GFC MRVS reports: CO2 from timber harvesting rose from 1.83M t (2018) to 3.71M t (2022); forestry-infrastructure emissions fell from 372k t to 164k t over the same period. 2023–2025 MRVS reports not yet published.",
+    "4.2.3": "Bank of Guyana Annual Reports: timber exports fell from 105,427 m³ / US$33.3M (2018) to 23,352 m³ / US$16.1M (2025); GFC FSIR per-product export detail available only through 2022.",
+    "4.2.4": "Bank of Guyana 2025 Annual Report (constant 2012 prices): Forestry GDP rose from G$15,430M (1.67% of GDP) in 2018 to G$20,045M (0.30% of GDP) in 2025 — its GDP share keeps declining even as the nominal value grows."
+  };
+
   const STATUS_META = {
     "Multiple secondary sources (triangulation possible)": { short: "Multiple sources", pill: "good", color: "var(--status-good)" },
     "One secondary source identified": { short: "One source", pill: "warning", color: "#e0a800" },
@@ -374,11 +389,13 @@
         anyVisible = true;
         const rows = items.map(d => {
           const meta = STATUS_META[d.avail];
+          const finding2025 = FINDINGS_2025[d.code];
           return `<div class="ind-row">
             <div class="ind-code">${d.code}</div>
             <div>
               <p class="ind-desc">${escapeHtml(d.desc)}</p>
               <p class="ind-value"><strong>2018:</strong> ${escapeHtml(d.baseline_value || 'No documented value.')}</p>
+              ${finding2025 ? `<p class="ind-value y2025"><strong>2025:</strong> ${escapeHtml(finding2025)}</p>` : ''}
             </div>
             <div class="pill-col">
               <span class="pill ${meta.pill}">${meta.short}</span>
